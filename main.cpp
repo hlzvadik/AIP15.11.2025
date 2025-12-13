@@ -20,6 +20,7 @@ size_t count_year(const Stud * const * studs, size_t k, int y);
 const Stud ** stud_dep(const Stud * const * studs, size_t k, int dep, size_t & found);
 size_t max_visits(const Subj & sub, int y);
 bool is_better(const Subj& sub, int y1, int y2);
+const Stud ** dobsovs(const Subj & sub, size_t & dobs, size_t vis);
 
 int main()
 {
@@ -87,4 +88,26 @@ bool is_better(const Subj& sub, int y1, int y2)
   size_t n_y2 = visits(sub, y2);
   size_t q_y2 = max_visits(sub, y2);
   return (n_y1 * q_y2 > n_y2 * q_y1);
+}
+
+const Stud ** dobsovs(const Subj & sub, size_t & dobs, size_t vis)
+{
+  for (size_t i = 0; i < sub.people; ++i)
+  {
+    if (sub.visited[i] < vis)
+    {
+      ++dobs;
+    }
+  }
+  size_t id = 0;
+  const Stud ** dobsa = new Stud*[dobs];
+  for (size_t i = 0; i < sub.people; ++i)
+  {
+    if (sub.visited[i] < vis)
+    {
+      dobsa[id] = sub.studs[i];
+      ++id;
+    }
+  }
+  return dobsa;
 }
