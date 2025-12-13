@@ -2,112 +2,73 @@
 
 struct Stud
 {
-  const char * fst;
-  const char * snd;
+  const char* fst;
+  const char* snd;
   int year;
   int dep;
 };
 
 struct Subj
 {
-  const char * name;
+  const char* name;
   size_t people, classes;
-  const Stud * const * studs;
-  const size_t * visited;
+  const Stud* const * studs;
+  const size_t* visited;
 };
 
-size_t count_year(const Stud * const * studs, size_t k, int y);
-const Stud ** stud_dep(const Stud * const * studs, size_t k, int dep, size_t & found);
-size_t max_visits(const Subj & sub, int y);
-bool is_better(const Subj& sub, int y1, int y2);
-const Stud ** dobsovs(const Subj & sub, size_t & dobs, size_t vis);
+const Stud** copy(const Stud* const* src, const Stud** dest, size_t k)
+{
+  for (size_t i = 0; i < k; ++i)
+  {
+    dest[i] = src[i];
+  }
+  return dest + k;
+}
+
+bool contains(const Stud* const* studs, size_t k, const Stud* s)
+{
+  for (size_t i = 0; i < k; ++i)
+  {
+    if (studs[i] == s)
+    {
+      return true;
+    }
+  }
+  return false;
+}
+
+const Stud ** stud_union(size_t& r, const Subj& s1, const Subj& s2)
+{
+  const Stud** uni = new const Stud*[s1.people + s2.people];
+  size_t count = 0;
+  copy(s1.studs, uni, s1.people);
+  count += s1.people;
+  for (size_t i = 0; i < s2.people; ++i)
+  {
+    if (!contains(uni, count, s2.studs[i]))
+    {
+      uni[count++] = s2.studs[i];
+    }
+  }
+
+  try
+  {
+    const Stud** tmp = new const Stud*[count];
+    copy(uni, tmp, count);
+    delete[] uni;
+    uni = tmp;
+  }
+  catch(const std::exception& e)
+  {
+    delete[] uni;
+    throw;
+  }
+  
+  r = count;
+  return uni;
+}
 
 int main()
 {
 
-}
-
-size_t count_year(const Stud * const * studs, size_t k, int y)
-{
-  size_t r = 0;
-  for (size_t i = 0; i < k; ++i)
-  {
-    const Stud * stud_i = studs[i];
-    int stud_y = stud_i->year;
-    r += (stud_y == y) ? 1 : 0;
-  }
-  return r;
-}
-
-const Stud ** stud_dep(const Stud * const * studs, size_t k, int dep, size_t & found)
-{
-  size_t dep_count = 0;
-  for (size_t i = 0; i < k; ++i)
-  {
-    const Stud * stud_i = studs[i];
-    dep_count += (stud_i->dep == dep);
-  }
-  const Stud ** r = new const Stud*[dep_count];
-  size_t id = 0;
-  for (size_t i = 0; i < k; ++i)
-  {
-    const Stud * stud_i = studs[i];
-    if (stud_i->dep == dep)
-    {
-      r[id] = stud_i;
-      ++id;
-    }
-  }
-  return r;
-}
-
-size_t max_visits(const Subj & sub, int y)
-{
-  size_t cy = count_year(sub.studs, sub.people, y);
-  return cy * sub.classes;
-}
-
-size_t visits(const Subj & sub, int y)
-{
-  size_t r = 0;
-  for (size_t i = 0; i < sub.people; ++i)
-  {
-    const Stud*stud_i = sub.studs[i];
-    if (stud_i->year == y)
-    {
-      r += sub.visited[i];
-    }
-  }
-  return r;
-}
-
-bool is_better(const Subj& sub, int y1, int y2)
-{
-  size_t n_y1 = visits(sub, y1);
-  size_t q_y1 = max_visits(sub, y1);
-  size_t n_y2 = visits(sub, y2);
-  size_t q_y2 = max_visits(sub, y2);
-  return (n_y1 * q_y2 > n_y2 * q_y1);
-}
-
-const Stud ** dobsovs(const Subj & sub, size_t & dobs, size_t vis)
-{
-  for (size_t i = 0; i < sub.people; ++i)
-  {
-    if (sub.visited[i] < vis)
-    {
-      ++dobs;
-    }
-  }
-  size_t id = 0;
-  const Stud ** dobsa = new Stud*[dobs];
-  for (size_t i = 0; i < sub.people; ++i)
-  {
-    if (sub.visited[i] < vis)
-    {
-      dobsa[id] = sub.studs[i];
-      ++id;
-    }
-  }
-  return dobsa;
 }
